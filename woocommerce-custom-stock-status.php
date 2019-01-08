@@ -1,12 +1,16 @@
 <?php
 /**!
  * Plugin Name: WooCommerce Custom Stock Status
- * Plugin URI:  www.stackonet.com
+ * Plugin URI: www.stackonet.com
  * Description: Write the custom stock status with different colors for each WooCommerce product, to show in product details and listing pages.
- * Version:     1.0.0
- * Author:      Stackonet Services Private Limited
- * Author URI:  www.stackonet.com
- * License:     GPL2
+ * Version: 1.0.0
+ * Author: Stackonet Services Private Limited
+ * Author URI: www.stackonet.com
+ * Requires at least: 4.4
+ * Tested up to: 5.0
+ * WC requires at least: 2.5
+ * WC tested up to: 3.5
+ * License: GPL2
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: woocommerce-custom-stock-status
  */
@@ -14,6 +18,12 @@
 defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
+
+	/**
+	 * Main WooCommerce_Custom_Stock_Status Class.
+	 *
+	 * @class WooCommerce_Custom_Stock_Status
+	 */
 	class WooCommerce_Custom_Stock_Status {
 
 		/**
@@ -33,10 +43,7 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 				self::$instance = new self();
 
 				// Add setting link on plugin page
-				add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array(
-					self::$instance,
-					'action_links'
-				) );
+				add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), [ self::$instance, 'action_links' ] );
 
 				// Load plugin admin scripts
 				add_action( 'admin_enqueue_scripts', [ self::$instance, 'admin_scripts' ] );
@@ -45,18 +52,22 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 				add_filter( 'woocommerce_get_sections_products', [ self::$instance, 'add_section' ] );
 				add_filter( 'woocommerce_get_settings_products', [ self::$instance, 'add_settings' ], 10, 2 );
 
+				// Add our custom field
 				add_action( 'woocommerce_admin_field_woorei_dynamic_field_table', [ self::$instance, 'admin_field' ] );
 
 				// Save our custom settings values
 				add_action( 'woocommerce_admin_settings_sanitize_option', [ self::$instance, 'update_settings' ] );
 
-				add_action( 'woocommerce_product_options_stock_status', [
-					self::$instance,
-					'add_custom_stock_type'
-				], 999 );
-				add_action( 'woocommerce_process_product_meta', [ self::$instance, 'save_custom_stock_type' ], 99, 1 );
-				add_action( 'woocommerce_get_availability', [ self::$instance, 'get_custom_availability' ], 10, 2 );
-				add_filter( 'woocommerce_get_stock_html', [ self::$instance, 'edit_custom_availability' ], 10, 2 );
+				// product status tab on product
+				add_action( 'woocommerce_product_options_stock_status', [ self::$instance, 'stock_status' ], 999 );
+
+				// Save product status
+				add_action( 'woocommerce_process_product_meta', [ self::$instance, 'save_stock_status' ], 99, 1 );
+
+				// Replace product availability text
+				add_filter( 'woocommerce_get_availability', [ self::$instance, 'product_availability' ], 10, 2 );
+
+				// add_action( 'woocommerce_get_availability', [ self::$instance, 'get_custom_availability' ], 10, 2 );
 			}
 
 			return self::$instance;
@@ -199,24 +210,24 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
                 </tfoot>
             </table>
             <script type="text/javascript">
-				jQuery(function () {
-					jQuery('input[name*="woorei_stock_statuses[id][]"]').wpColorPicker();
+                jQuery(function () {
+                    jQuery('input[name*="woorei_stock_statuses[id][]"]').wpColorPicker();
 
-					jQuery('.woorei_stock_statuses .remove_item').click(function () {
+                    jQuery('.woorei_stock_statuses .remove_item').click(function () {
 
-						var $tbody = jQuery('.woorei_stock_statuses').find('tbody');
-						if ($tbody.find('tr.current').size() > 0) {
-							$current = $tbody.find('tr.current');
-							$current.remove();
-						} else {
-							alert('<?php echo esc_js( __( 'No row(s) selected', 'woorei' ) ); ?>');
-						}
-						return false;
-					});
-					jQuery('.woorei_stock_statuses .insert').click(function () {
-						var $tbody = jQuery('.woorei_stock_statuses').find('tbody');
-						var size = $tbody.find('tr').size();
-						var code = '<tr class="new">\
+                        var $tbody = jQuery('.woorei_stock_statuses').find('tbody');
+                        if ($tbody.find('tr.current').size() > 0) {
+                            $current = $tbody.find('tr.current');
+                            $current.remove();
+                        } else {
+                            alert('<?php echo esc_js( __( 'No row(s) selected', 'woorei' ) ); ?>');
+                        }
+                        return false;
+                    });
+                    jQuery('.woorei_stock_statuses .insert').click(function () {
+                        var $tbody = jQuery('.woorei_stock_statuses').find('tbody');
+                        var size = $tbody.find('tr').size();
+                        var code = '<tr class="new">\
 							<td width="20px" align="center">\
 								<input type="checkbox" class="woorei_stock_statuses_default_radio" value="yes" name="woorei_stock_statuses[default][' + size + ']" />\
 								\
@@ -224,15 +235,15 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 							<td><input type="text"  name="woorei_stock_statuses[name][]" /></td>\
 							<td><input type="text" class="color"  name="woorei_stock_statuses[id][]" /></td>\
 						</tr>';
-						if ($tbody.find('tr.current').size() > 0) {
-							$tbody.find('tr.current').after(code);
-						} else {
-							$tbody.append(code);
-						}
-						jQuery('.color').wpColorPicker();
-						return false;
-					});
-				});
+                        if ($tbody.find('tr.current').size() > 0) {
+                            $tbody.find('tr.current').after(code);
+                        } else {
+                            $tbody.append(code);
+                        }
+                        jQuery('.color').wpColorPicker();
+                        return false;
+                    });
+                });
             </script>
 			<?php
 		}
@@ -259,7 +270,7 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 		/**
 		 * Add custom stock type
 		 */
-		function add_custom_stock_type() {
+		public function stock_status() {
 			foreach ( get_option( 'woorei_stock_statuses' ) as $option ) {
 				if ( ! ( isset( $option['default'] ) && $option['default'] == 'yes' ) ) {
 					continue;
@@ -272,28 +283,28 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 			$options['outofstock'] = __( 'Out of stock', 'woocommerce' );
 			?>
             <script type="text/javascript">
-				jQuery(function () {
-					//   jQuery('._stock_status_field').not('.custom-stock-status').remove();
-				});
+                jQuery(function () {
+                    jQuery('._stock_status_field').not('.custom-stock-status').remove();
+                });
             </script>
 			<?php
 			woocommerce_wp_select( array(
-				'id'            => '_stock_status_custom',
+				'id'            => '_stock_status',
 				'wrapper_class' => 'hide_if_variable custom-stock-status',
-				'label'         => __( 'Custom inStock status', 'woocommerce' ),
-				'options'       => $options, // The new option !!!
+				'label'         => __( 'Stock status', 'woocommerce' ),
+				'options'       => $options, // The new option
 				'desc_tip'      => true,
 				'description'   => __( 'Controls whether or not the product is listed as "in stock" or "out of stock" on the frontend.', 'woocommerce' )
 			) );
 		}
 
 		/**
-		 * Save custom stock type
+		 * Save custom stock status
 		 *
 		 * @param $product_id
 		 */
-		function save_custom_stock_type( $product_id ) {
-			update_post_meta( $product_id, '_stock_status_custom', wc_clean( $_POST['_stock_status_custom'] ) );
+		function save_stock_status( $product_id ) {
+			update_post_meta( $product_id, '_stock_status', wc_clean( $_POST['_stock_status'] ) );
 		}
 
 		/**
@@ -306,10 +317,6 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 		 */
 		function get_custom_availability( $data, $product ) {
 			switch ( $product->get_stock_status() ) {
-
-				case 1:
-					$data = array( 'availability' => __( 'In stock', 'woocommerce' ), 'class' => 'in-stock' );
-					break;
 				case 'instock':
 					$data = array( 'availability' => __( 'In stock', 'woocommerce' ), 'class' => 'in-stock' );
 					break;
@@ -328,22 +335,32 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 		}
 
 		/**
-		 * Edit custom availability
+		 * Returns the availability of the product.
 		 *
-		 * @param string $html
+		 * @param array $availability
 		 * @param \WC_Product $product
 		 *
-		 * @return string
+		 * @return string[]
 		 */
-		function edit_custom_availability( $html, $product ) {
+		function product_availability( $availability, $product ) {
 			$statuses = get_option( 'woorei_stock_statuses' );
 			$status   = get_post_meta( $product->get_id(), '_stock_status', true );
+			$color    = esc_attr( $statuses[ $status ]['id'] );
+			$label    = esc_attr( $statuses[ $status ]['name'] );
 
-			return $html;
 
-			$color = $statuses[ $status ]['id'];
-			$html  = '<div class="stocks"><span style="color:' . $color . '">' . $statuses[ $status ]['name'] . '</span></div>';
+			// Change In Stock Text
+			if ( $product->is_in_stock() ) {
+				$availability['availability'] = __( 'Available!', 'woocommerce' );
+			} elseif ( ! $product->is_in_stock() ) {
+				$availability['availability'] = __( 'Sold Out', 'woocommerce' );
+			}
 
+			if ( ! empty( $label ) ) {
+				$availability['availability'] = '<span style="color:' . $color . '">' . $label . '</span>';
+			}
+
+			return $availability;
 		}
 	}
 }
