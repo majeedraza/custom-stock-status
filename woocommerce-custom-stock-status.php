@@ -8,7 +8,7 @@
  * Author URI: www.stackonet.com
  * Requires at least: 4.4
  * Tested up to: 5.0
- * WC requires at least: 2.5
+ * WC requires at least: 3.0
  * WC tested up to: 3.5
  * License: GPL2
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -87,7 +87,7 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 				'section' => 'stock_statuses',
 			), admin_url( 'admin.php' ) );
 			$plugin_links = array(
-				'<a href="' . $setting_url . '">' . __( 'Settings', 'textdomain' ) . '</a>'
+				'<a href="' . $setting_url . '">' . __( 'Settings', 'woocommerce-custom-stock-status' ) . '</a>'
 			);
 
 			return array_merge( $plugin_links, $links );
@@ -109,7 +109,7 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 		 * @return array
 		 */
 		function add_section( $sections ) {
-			$sections['stock_statuses'] = __( 'Stock statuses', 'textdomain' );
+			$sections['stock_statuses'] = __( 'Stock statuses', 'woocommerce-custom-stock-status' );
 
 			return $sections;
 		}
@@ -132,8 +132,8 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 				$settings[] = array(
 					'id'   => 'stock_statuses',
 					'type' => 'title',
-					'name' => __( 'Stock statuses', 'textdomain' ),
-					'desc' => __( 'The following options are used to configure stock statuses.', 'textdomain' ),
+					'name' => __( 'Stock statuses', 'woocommerce-custom-stock-status' ),
+					'desc' => __( 'The following options are used to configure stock statuses.', 'woocommerce-custom-stock-status' ),
 				);
 				$settings[] = array(
 					'id'   => 'woorei_dynamic_field_table',
@@ -167,9 +167,9 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
             <table class="woorei_stock_statuses wc_input_table sortable widefat">
                 <thead>
                 <tr>
-                    <th width="20px"><?php _e( 'Use it', 'textdomain' ); ?></th>
-                    <th width="300px"><?php _e( 'Name', 'textdomain' ); ?></th>
-                    <th width="280px"><?php _e( 'Color', 'textdomain' ); ?></th>
+                    <th width="20px"><?php _e( 'Use it', 'woocommerce-custom-stock-status' ); ?></th>
+                    <th width="300px"><?php _e( 'Name', 'woocommerce-custom-stock-status' ); ?></th>
+                    <th width="280px"><?php _e( 'Color', 'woocommerce-custom-stock-status' ); ?></th>
                 </tr>
                 </thead>
                 <tbody id="rates">
@@ -200,10 +200,10 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
                 <tr>
                     <th colspan="10">
                         <a href="#" class="button plus insert">
-							<?php _e( 'Add status', 'textdomain' ); ?>
+							<?php _e( 'Add status', 'woocommerce-custom-stock-status' ); ?>
                         </a>
                         <a href="#" class="button minus remove_item">
-							<?php _e( 'Remove selected status(es)', 'textdomain' ); ?>
+							<?php _e( 'Remove selected status(es)', 'woocommerce-custom-stock-status' ); ?>
                         </a>
                     </th>
                 </tr>
@@ -220,7 +220,7 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
                             $current = $tbody.find('tr.current');
                             $current.remove();
                         } else {
-                            alert('<?php echo esc_js( __( 'No row(s) selected', 'woorei' ) ); ?>');
+                            alert('<?php echo esc_js( __( 'No row(s) selected', 'woocommerce-custom-stock-status' ) ); ?>');
                         }
                         return false;
                     });
@@ -279,8 +279,8 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 				$options[] = $option['name'];
 			}
 
-			$options['instock']    = __( 'In stock', 'woocommerce' );
-			$options['outofstock'] = __( 'Out of stock', 'woocommerce' );
+			$options['instock']    = __( 'In stock', 'woocommerce-custom-stock-status' );
+			$options['outofstock'] = __( 'Out of stock', 'woocommerce-custom-stock-status' );
 			?>
             <script type="text/javascript">
                 jQuery(function () {
@@ -291,10 +291,10 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 			woocommerce_wp_select( array(
 				'id'            => '_stock_status',
 				'wrapper_class' => 'hide_if_variable custom-stock-status',
-				'label'         => __( 'Stock status', 'woocommerce' ),
+				'label'         => __( 'Stock status', 'woocommerce-custom-stock-status' ),
 				'options'       => $options, // The new option
 				'desc_tip'      => true,
-				'description'   => __( 'Controls whether or not the product is listed as "in stock" or "out of stock" on the frontend.', 'woocommerce' )
+				'description'   => __( 'Controls whether or not the product is listed as "in stock" or "out of stock" on the frontend.', 'woocommerce-custom-stock-status' )
 			) );
 		}
 
@@ -318,14 +318,14 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 		function get_custom_availability( $data, $product ) {
 			switch ( $product->get_stock_status() ) {
 				case 'instock':
-					$data = array( 'availability' => __( 'In stock', 'woocommerce' ), 'class' => 'in-stock' );
+					$data = array( 'availability' => __( 'In stock', 'woocommerce-custom-stock-status' ), 'class' => 'in-stock' );
 					break;
 				case 'outofstock':
-					$data = array( 'availability' => __( 'Out of stock', 'woocommerce' ), 'class' => 'out-of-stock' );
+					$data = array( 'availability' => __( 'Out of stock', 'woocommerce-custom-stock-status' ), 'class' => 'out-of-stock' );
 					break;
 				case 'onrequest':
 					$data = array(
-						'availability' => __( 'Available to Order', 'woocommerce' ),
+						'availability' => __( 'Available to Order', 'woocommerce-custom-stock-status' ),
 						'class'        => 'on-request'
 					);
 					break;
@@ -351,9 +351,9 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 
 			// Change In Stock Text
 			if ( $product->is_in_stock() ) {
-				$availability['availability'] = __( 'Available!', 'woocommerce' );
+				$availability['availability'] = __( 'Available!', 'woocommerce-custom-stock-status' );
 			} elseif ( ! $product->is_in_stock() ) {
-				$availability['availability'] = __( 'Sold Out', 'woocommerce' );
+				$availability['availability'] = __( 'Sold Out', 'woocommerce-custom-stock-status' );
 			}
 
 			if ( ! empty( $label ) ) {
