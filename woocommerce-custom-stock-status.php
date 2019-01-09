@@ -1,7 +1,7 @@
 <?php
 /**!
  * Plugin Name: WooCommerce Custom Stock Status
- * Plugin URI: www.stackonet.com
+ * Plugin URI: https://wordpress.org/plugins/woocommerce-custom-stock-status
  * Description: Write the custom stock status with different colors for each WooCommerce product, to show in product details and listing pages.
  * Version: 1.0.0
  * Author: Stackonet Services Private Limited
@@ -318,10 +318,16 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 		function get_custom_availability( $data, $product ) {
 			switch ( $product->get_stock_status() ) {
 				case 'instock':
-					$data = array( 'availability' => __( 'In stock', 'woocommerce-custom-stock-status' ), 'class' => 'in-stock' );
+					$data = array(
+						'availability' => __( 'In stock', 'woocommerce-custom-stock-status' ),
+						'class'        => 'in-stock'
+					);
 					break;
 				case 'outofstock':
-					$data = array( 'availability' => __( 'Out of stock', 'woocommerce-custom-stock-status' ), 'class' => 'out-of-stock' );
+					$data = array(
+						'availability' => __( 'Out of stock', 'woocommerce-custom-stock-status' ),
+						'class'        => 'out-of-stock'
+					);
 					break;
 				case 'onrequest':
 					$data = array(
