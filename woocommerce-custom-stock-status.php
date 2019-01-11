@@ -53,7 +53,7 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 				add_filter( 'woocommerce_get_settings_products', [ self::$instance, 'add_settings' ], 10, 2 );
 
 				// Add our custom field
-				add_action( 'woocommerce_admin_field_woorei_dynamic_field_table', [ self::$instance, 'admin_field' ] );
+				add_action( 'woocommerce_admin_field_wc_custom_stock_status_control', [ self::$instance, 'admin_field' ] );
 
 				// Save our custom settings values
 				add_action( 'woocommerce_admin_settings_sanitize_option', [ self::$instance, 'update_settings' ] );
@@ -66,8 +66,6 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 
 				// Replace product availability text
 				add_filter( 'woocommerce_get_availability', [ self::$instance, 'product_availability' ], 10, 2 );
-
-				// add_action( 'woocommerce_get_availability', [ self::$instance, 'get_custom_availability' ], 10, 2 );
 			}
 
 			return self::$instance;
@@ -136,12 +134,8 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 					'desc' => __( 'The following options are used to configure stock statuses.', 'woocommerce-custom-stock-status' ),
 				);
 				$settings[] = array(
-					'id'   => 'woorei_dynamic_field_table',
-					'type' => 'woorei_dynamic_field_table',
-				);
-				$settings[] = array(
-					'type' => 'sectionend',
-					'id'   => 'stock_statuses'
+					'id'   => 'wc_custom_stock_status_control',
+					'type' => 'wc_custom_stock_status_control',
 				);
 			}
 
@@ -156,7 +150,7 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 		public function admin_field( $value ) {
 			?>
             <style>
-                table.woorei_stock_statuses.wc_input_table.sortable.widefat {
+                table.wc_custom_stock_statuses.wc_input_table.sortable.widefat {
                     max-width: 800px;
                 }
 
@@ -164,7 +158,7 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
                     position: absolute;
                 }
             </style>
-            <table class="woorei_stock_statuses wc_input_table sortable widefat">
+            <table class="wc_custom_stock_statuses wc_input_table sortable widefat">
                 <thead>
                 <tr>
                     <th width="20px"><?php _e( 'Use it', 'woocommerce-custom-stock-status' ); ?></th>
@@ -174,22 +168,22 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
                 </thead>
                 <tbody id="rates">
 				<?php
-				$woorei_stock_statuses = get_option( 'woorei_stock_statuses', array() );
-				foreach ( $woorei_stock_statuses as $key => $data ) {
+				$wc_custom_stock_statuses = get_option( 'wc_custom_stock_statuses', array() );
+				foreach ( $wc_custom_stock_statuses as $key => $data ) {
 					?>
                     <tr>
                         <td align="center">
-                            <input type="checkbox" class="woorei_stock_statuses_default_radios"
-                                   name="woorei_stock_statuses[default][<?php echo $key ?>]"
+                            <input type="checkbox" class="wc_custom_stock_statuses_default_radios"
+                                   name="wc_custom_stock_statuses[default][<?php echo $key ?>]"
                                    value="yes" <?php echo ( isset( $data['default'] ) && $data['default'] == 'yes' ) ? 'checked="checked"' : ''; ?> />
                         </td>
                         <td>
                             <input type="text" value="<?php echo esc_attr( $data['name'] ) ?>"
-                                   name="woorei_stock_statuses[name][]"/>
+                                   name="wc_custom_stock_statuses[name][]"/>
                         </td>
                         <td>
                             <input class="colorpicker" type="text" value="<?php echo esc_attr( $data['id'] ) ?>"
-                                   name="woorei_stock_statuses[id][]"/>
+                                   name="wc_custom_stock_statuses[id][]"/>
                         </td>
                     </tr>
 					<?php
@@ -211,11 +205,11 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
             </table>
             <script type="text/javascript">
                 jQuery(function () {
-                    jQuery('input[name*="woorei_stock_statuses[id][]"]').wpColorPicker();
+                    jQuery('input[name*="wc_custom_stock_statuses[id][]"]').wpColorPicker();
 
-                    jQuery('.woorei_stock_statuses .remove_item').click(function () {
+                    jQuery('.wc_custom_stock_statuses .remove_item').click(function () {
 
-                        var $tbody = jQuery('.woorei_stock_statuses').find('tbody');
+                        var $tbody = jQuery('.wc_custom_stock_statuses').find('tbody');
                         if ($tbody.find('tr.current').size() > 0) {
                             $current = $tbody.find('tr.current');
                             $current.remove();
@@ -224,16 +218,16 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
                         }
                         return false;
                     });
-                    jQuery('.woorei_stock_statuses .insert').click(function () {
-                        var $tbody = jQuery('.woorei_stock_statuses').find('tbody');
+                    jQuery('.wc_custom_stock_statuses .insert').click(function () {
+                        var $tbody = jQuery('.wc_custom_stock_statuses').find('tbody');
                         var size = $tbody.find('tr').size();
                         var code = '<tr class="new">\
 							<td width="20px" align="center">\
-								<input type="checkbox" class="woorei_stock_statuses_default_radio" value="yes" name="woorei_stock_statuses[default][' + size + ']" />\
+								<input type="checkbox" class="wc_custom_stock_statuses_default_radio" value="yes" name="wc_custom_stock_statuses[default][' + size + ']" />\
 								\
 							</td>\
-							<td><input type="text"  name="woorei_stock_statuses[name][]" /></td>\
-							<td><input type="text" class="color"  name="woorei_stock_statuses[id][]" /></td>\
+							<td><input type="text"  name="wc_custom_stock_statuses[name][]" /></td>\
+							<td><input type="text" class="color"  name="wc_custom_stock_statuses[id][]" /></td>\
 						</tr>';
                         if ($tbody.find('tr.current').size() > 0) {
                             $tbody.find('tr.current').after(code);
@@ -254,16 +248,17 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 		 * @param $value
 		 */
 		public function update_settings( $value ) {
-			$woorei_stock_statuses_new = $_POST['woorei_stock_statuses'];
-			$woorei_stock_statuses     = array();
+			$new_statuses = isset( $_POST['wc_custom_stock_statuses'] ) ? $_POST['wc_custom_stock_statuses'] : [];
+			$new_statuses = static::sanitize( $new_statuses );
+			$statuses     = array();
 
-
-			foreach ( $woorei_stock_statuses_new as $fields => $stock_statuses ) {
+			foreach ( $new_statuses as $fields => $stock_statuses ) {
 				foreach ( $stock_statuses as $key => $settings ) {
-					$woorei_stock_statuses[ $key ][ $fields ] = $settings;
+					$statuses[ $key ][ $fields ] = $settings;
 				}
 			}
-			update_option( 'woorei_stock_statuses', $woorei_stock_statuses );
+
+			update_option( 'wc_custom_stock_statuses', $statuses );
 		}
 
 
@@ -271,7 +266,7 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 		 * Add custom stock type
 		 */
 		public function stock_status() {
-			foreach ( get_option( 'woorei_stock_statuses' ) as $option ) {
+			foreach ( get_option( 'wc_custom_stock_statuses' ) as $option ) {
 				if ( ! ( isset( $option['default'] ) && $option['default'] == 'yes' ) ) {
 					continue;
 				}
@@ -304,40 +299,11 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 		 * @param $product_id
 		 */
 		function save_stock_status( $product_id ) {
-			update_post_meta( $product_id, '_stock_status', wc_clean( $_POST['_stock_status'] ) );
-		}
-
-		/**
-		 * Get custom availability
-		 *
-		 * @param $data
-		 * @param \WC_Product $product
-		 *
-		 * @return array
-		 */
-		function get_custom_availability( $data, $product ) {
-			switch ( $product->get_stock_status() ) {
-				case 'instock':
-					$data = array(
-						'availability' => __( 'In stock', 'woocommerce-custom-stock-status' ),
-						'class'        => 'in-stock'
-					);
-					break;
-				case 'outofstock':
-					$data = array(
-						'availability' => __( 'Out of stock', 'woocommerce-custom-stock-status' ),
-						'class'        => 'out-of-stock'
-					);
-					break;
-				case 'onrequest':
-					$data = array(
-						'availability' => __( 'Available to Order', 'woocommerce-custom-stock-status' ),
-						'class'        => 'on-request'
-					);
-					break;
+			if ( ! empty( $_POST['_stock_status'] ) ) {
+				update_post_meta( $product_id, '_stock_status', static::sanitize( $_POST['_stock_status'] ) );
+			} else {
+				delete_post_meta( $product_id, '_stock_status' );
 			}
-
-			return $data;
 		}
 
 		/**
@@ -349,7 +315,7 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 		 * @return string[]
 		 */
 		function product_availability( $availability, $product ) {
-			$statuses = get_option( 'woorei_stock_statuses' );
+			$statuses = get_option( 'wc_custom_stock_statuses' );
 			$status   = get_post_meta( $product->get_id(), '_stock_status', true );
 			$color    = esc_attr( $statuses[ $status ]['id'] );
 			$label    = esc_attr( $statuses[ $status ]['name'] );
@@ -367,6 +333,26 @@ if ( ! class_exists( 'WooCommerce_Custom_Stock_Status' ) ) {
 			}
 
 			return $availability;
+		}
+
+		/**
+		 * Sanitize user submitted data
+		 *
+		 * @param mixed $data
+		 *
+		 * @return array|string
+		 */
+		private static function sanitize( $data ) {
+			if ( is_array( $data ) ) {
+				$_data = array();
+				foreach ( $data as $key => $value ) {
+					$_data[ $key ] = self::sanitize( $value );
+				}
+
+				return $_data;
+			}
+
+			return is_scalar( $data ) ? sanitize_text_field( $data ) : '';
 		}
 	}
 }
