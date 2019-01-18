@@ -25,7 +25,7 @@ Please note: It only works on simple products, not on variable products.
 
 == Installation ==
 
-1. Upload the plugin files to the `/wp-content/plugins/woocommerce-custom-stock-status` directory, or install the plugin through the WordPress plugins screen directly.
+1. Upload the plugin files to the `/wp-content/plugins/wc-custom-stock-status` directory, or install the plugin through the WordPress plugins screen directly.
 1. Activate the plugin through the 'Plugins' screen in WordPress
 1. Use the WooCommerce -> Settings -> Custom Stock(tab) screen to configure the stock status
 1. You can see list of default stock status and text box to put your custom names
@@ -40,5 +40,5 @@ If you still need help. visit [WordPress codex](https://codex.wordpress.org/Mana
 
 == Changelog ==
 
-= version 1.0.0 - 2019-01-09 =
+= version 1.0.0 - 2019-01-18 =
 * Initial release.
